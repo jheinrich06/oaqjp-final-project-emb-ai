@@ -7,18 +7,28 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/emotionDetector', methods=['GET'])
+@app.route("/emotionDetector")
 def emotionDetector():
 
-    data = request.json
-    text = data.get('text', '')
-    result = emotion_detector(text)
     
-    if result['dominant_emotion'] is None:
-        return jsonify({"message": "Invalid text! Please try again."}), 400
-    
-    else:
-        return result
+
+    text_to_analyze = request.args.get('textToAnalyze')
+    response = emotion_detector(text_to_analyze)
+    anger = response['anger']
+    disgust = response['disgust']
+    fear = response['fear']
+    joy = response['joy']
+    sadness = response['sadness']
+    dominant_emotion = response['dominant_emotion']
+
+    if dominant_emotion is None:
+        return "Invalid text! Please try again!."
+
+    return (
+        f"For the given statement, the system response is 'anger':"
+        f"{anger}, 'disgust': {disgust}, 'fear': {fear}, 'joy': {joy} and 'sadness': {sadness}. " 
+        f"The dominant emotion is {dominant_emotion}."
+    )
 
 
 if __name__ == '__main__':
